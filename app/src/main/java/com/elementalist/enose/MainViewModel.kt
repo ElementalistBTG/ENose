@@ -50,13 +50,13 @@ class MainViewModel(
     fun listenForData() {
         // Cancel discovery because it otherwise slows down the connection.
         bluetoothAdapter.cancelDiscovery()
-        //Send data to selected device
+        //Listen for data from selected device
         selectedDevice?.let {
-            ConnectThread(it,this).start()
+            ConnectThread(it, this).start()
         }
     }
 
-    var displayedText by mutableStateOf("Permissions granting phase")
+    var displayedText by mutableStateOf("Listening for data from the device: $selectedDevice ...")
         private set
 
     var buttonText by mutableStateOf("")
@@ -72,13 +72,8 @@ class MainViewModel(
         dataReceived: String? = null
     ) {
         when (newState) {
-            StatesOfServer.APP_STARTED -> {
-                displayedText = "Press button to start listening. Be sure to allow all permissions"
-                buttonText = "Open server socket"
-                buttonAction = { listenForData() }
-            }
             StatesOfServer.SERVER_STARTED -> {
-                displayedText = "Server is listening for connections..."
+                displayedText = "Listening for data from the device: $selectedDevice ..."
                 buttonText = "Restart Server?"
                 buttonAction = { listenForData() }
                 image = 0

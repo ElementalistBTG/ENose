@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.ui.Modifier
+import androidx.navigation.compose.rememberNavController
 import com.elementalist.enose.ui.theme.ENoseTheme
 
 
@@ -58,7 +59,11 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    MainScreen(viewModel = viewModel)
+                    val navController = rememberNavController()
+                    NavigationGraph(
+                        navController = navController,
+                        viewModel = viewModel
+                    )
                 }
             }
         }
@@ -140,3 +145,4 @@ class MainActivity : ComponentActivity() {
 
 
 }
+

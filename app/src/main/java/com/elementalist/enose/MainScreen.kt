@@ -7,6 +7,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,11 +22,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.elementalist.enose.Client.ListedDeviceItem
 
 @SuppressLint("MissingPermission")
 @Composable
-fun MainScreen(viewModel: MainViewModel) {
+fun MainScreen(
+    navController: NavController,
+    viewModel: MainViewModel
+) {
 
     val context = LocalContext.current
 
@@ -107,6 +112,17 @@ fun MainScreen(viewModel: MainViewModel) {
             .padding(10.dp)
     ) {
 
+        Text(
+            text = "Electronic nose app for showing the result of a measurement from an external device (raspberry pi)." +
+                    "\nPress scan to connect to an external device and start"
+        )
+
+        Spacer(
+            modifier = Modifier
+                .padding(5.dp)
+                .background(Color.DarkGray)
+        )
+
         Button(onClick = {
             //check for permissions and launch scanning after they are granted
             askPermissions(
@@ -120,10 +136,13 @@ fun MainScreen(viewModel: MainViewModel) {
 
         Spacer(modifier = Modifier.padding(5.dp))
 
-        if(discoveredDevices.isNotEmpty()){
+        if (discoveredDevices.isNotEmpty()) {
             Text(
                 text = "Discovered Devices",
-                modifier = Modifier.fillMaxWidth().padding(2.dp).border(3.dp, MaterialTheme.colors.primaryVariant),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(2.dp)
+                    .border(3.dp, MaterialTheme.colors.primaryVariant),
                 textAlign = TextAlign.Center
             )
         }
@@ -133,18 +152,21 @@ fun MainScreen(viewModel: MainViewModel) {
         LazyColumn(modifier = Modifier.fillMaxWidth()) {
             items(discoveredDevices) { device ->
                 ListedDeviceItem(
-                    deviceName = device.name
+                    deviceName = device.name,
+                    selected = viewModel.selectedDevice == device
                 ) {
                     viewModel.selectDevice(device)
-                    Log.i(MY_TAG, viewModel.selectedDevice?.name.toString())
                 }
                 Divider(Modifier.padding(3.dp), color = Color.Green)
             }
         }
 
         if (selectedDevice != null) {
-            Button(onClick = { viewModel.listenForData() }) {
-                Text(text = "Send Data to ${selectedDevice.name}")
+            Button(onClick = {
+                viewModel.listenForData()
+                navController.navigate("server_screen")
+            }) {
+                Text(text = "Listen for data sent from: ${selectedDevice.name}")
             }
         }
     }
