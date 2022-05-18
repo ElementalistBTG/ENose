@@ -41,7 +41,7 @@ class BluetoothServer(
                 break
             } finally {
                 inputStream.close()
-                socket.close()
+                //socket.close()
             }
 
         }
@@ -58,7 +58,6 @@ class ConnectThread(
     }
 
     override fun run() {
-
         mmSocket?.let { socket ->
             //Connect to the remote device through the socket.
             // This call blocks until it succeeds or throws an exception
@@ -74,7 +73,15 @@ class ConnectThread(
             //The connection attempt succeeded.
             //Perform work associated with the connection in a separate thread
             viewModel.listenForData()
+        }
+    }
 
+    // Closes the connect socket and causes the thread to finish.
+    fun cancel() {
+        try {
+            mmSocket?.close()
+        } catch (e: IOException) {
+            Log.e(MY_TAG, "Could not close the connect socket", e)
         }
     }
 }

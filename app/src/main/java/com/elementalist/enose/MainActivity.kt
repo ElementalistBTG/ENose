@@ -20,6 +20,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
+import com.elementalist.enose.data.ConnectThread
 import com.elementalist.enose.ui.NavigationGraph
 import com.elementalist.enose.ui.screens.MainViewModel
 import com.elementalist.enose.ui.theme.ENoseTheme
@@ -90,6 +91,9 @@ class MainActivity : ComponentActivity() {
 
         // Unregister broadcast listeners
         this.unregisterReceiver(mReceiver)
+
+        //close open socket
+        viewModel.selectedDevice?.let { ConnectThread(device = it,viewModel = viewModel).cancel() }
     }
 
     private val mReceiver = object : BroadcastReceiver() {
