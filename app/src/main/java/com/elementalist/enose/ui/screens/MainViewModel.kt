@@ -3,7 +3,6 @@ package com.elementalist.enose.ui.screens
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothSocket
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -19,7 +18,6 @@ import com.elementalist.enose.data.ConnectThread
 import com.elementalist.enose.util.MY_TAG
 import com.elementalist.enose.R.drawable.nok
 import com.elementalist.enose.R.drawable.ok
-import com.elementalist.enose.data.BluetoothService
 
 class MainViewModel(
     private val bluetoothAdapter: BluetoothAdapter
@@ -65,7 +63,7 @@ class MainViewModel(
      */
     @SuppressLint("MissingPermission")
     fun startBluetoothService(){
-        changeStateOfConnectivity(StatesOfServer.CLIENT_STARTED)
+        changeStateOfConnectivity(StatesOfConnection.CLIENT_STARTED)
         // Cancel discovery because it otherwise slows down the connection.
         bluetoothAdapter.cancelDiscovery()
         //Listen for data from selected device
@@ -85,13 +83,17 @@ class MainViewModel(
     var image by mutableStateOf(0)
         private set
 
+    var connectionState by mutableStateOf(StatesOfConnection.CLIENT_STARTED)
+        private set
+
     @SuppressLint("MissingPermission")
     fun changeStateOfConnectivity(
-        newState: StatesOfServer,
+        newState: StatesOfConnection,
         dataReceived: String? = null
     ) {
+        connectionState = newState
         when (newState) {
-            StatesOfServer.CLIENT_STARTED -> {
+            StatesOfConnection.CLIENT_STARTED -> {
                 val annotatedText = buildAnnotatedString {
                     append("Listening for data from the device:\n")
                     withStyle(style = SpanStyle(color = Color.Blue)) {
@@ -102,7 +104,7 @@ class MainViewModel(
                 buttonText = ""
                 image = 0
             }
-            StatesOfServer.RESPONSE_RECEIVED -> {
+            StatesOfConnection.RESPONSE_RECEIVED -> {
                 when {
                     dataReceived.equals("1") -> {
                         val annotatedText = buildAnnotatedString {
@@ -112,8 +114,9 @@ class MainViewModel(
                             }
                         }
                         displayedText = annotatedText
-                        buttonText = "Listen again for messages from raspberry?"
-                        buttonAction = { startBluetoothService() }
+                        //buttonText = "Listen again for messages from raspberry?"
+                        //buttonAction = { startBluetoothService() }
+                        buttonText = ""
                         image = ok
                     }
                     dataReceived.equals("0") -> {
@@ -125,8 +128,9 @@ class MainViewModel(
                             append(" eat that food")
                         }
                         displayedText = annotatedText
-                        buttonText = "Listen again for messages from raspberry?"
-                        buttonAction = { startBluetoothService() }
+                        //buttonText = "Listen again for messages from raspberry?"
+                        //buttonAction = { startBluetoothService() }
+                        buttonText = ""
                         image = nok
                     }
                     else -> {
@@ -143,8 +147,9 @@ class MainViewModel(
                     }
                 }
             }
-            StatesOfServer.ERROR -> {
-                buttonText = ""
+            StatesOfConnection.ERROR -> {
+                buttonText = "Restart server?"
+                buttonAction = { startBluetoothService() }
                 val annotatedText = buildAnnotatedString {
                     append("An error occurred:")
                     withStyle(style = SpanStyle(color = Color.Red)) {

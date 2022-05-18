@@ -7,7 +7,7 @@ import android.util.Log
 import com.elementalist.enose.util.MY_TAG
 import com.elementalist.enose.util.myUuid
 import com.elementalist.enose.ui.screens.MainViewModel
-import com.elementalist.enose.ui.screens.StatesOfServer
+import com.elementalist.enose.ui.screens.StatesOfConnection
 import java.io.IOException
 
 /**
@@ -22,29 +22,24 @@ class BluetoothService(
 ) : Thread() {
     private val inputStream = socket.inputStream
 
+    //We only need 1Byte for reading 0 or 1 from raspberry result
+    private val buffer = ByteArray(1)
     override fun run() {
+        // Keep listening to the InputStream until an exception occurs.
         while (true) {
             try {
                 //Read from the InputStream
-                //We only need 1Byte for reading 0 or 1 from raspberry result
-                val buffer = ByteArray(1)
                 inputStream.read(buffer)
-                val text = String(buffer)
-                Log.i(MY_TAG, "Message received: $text")
-                // Send the obtained bytes to the UI activity.
-                viewModel.changeStateOfConnectivity(
-                    newState = StatesOfServer.RESPONSE_RECEIVED,
-                    dataReceived = text
-                )
             } catch (e: IOException) {
                 Log.i(MY_TAG, "Input stream was disconnected", e)
                 break
             }
-            finally {
-                inputStream.close()
-                socket.close()
-            }
-
+            // Send the obtained bytes to the UI activity.
+            val text = String(buffer)
+            viewModel.changeStateOfConnectivity(
+                newState = StatesOfConnection.RESPONSE_RECEIVED,
+                dataReceived = text
+            )
         }
     }
 }
@@ -64,6 +59,7 @@ class ConnectThread(
     private val viewModel: MainViewModel
 ) : Thread() {
     private val mmSocket: BluetoothSocket? by lazy(LazyThreadSafetyMode.NONE) {
+        //device.createInsecureRfcommSocketToServiceRecord(myUuid)
         device.createRfcommSocketToServiceRecord(myUuid)
     }
 
@@ -77,7 +73,10 @@ class ConnectThread(
                 Log.i(MY_TAG, "connection success")
             } catch (e: Exception) {
                 Log.i(MY_TAG, "connection was not successful")
-                viewModel.changeStateOfConnectivity(StatesOfServer.ERROR,"Error on connectivity: $e")
+                viewModel.changeStateOfConnectivity(
+                    StatesOfConnection.ERROR,
+                    "Error on connectivity: $e"
+                )
             }
             //The connection attempt succeeded.
             //Perform work associated with the connection in a separate thread

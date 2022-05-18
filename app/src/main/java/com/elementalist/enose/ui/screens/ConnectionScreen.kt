@@ -22,6 +22,7 @@ fun ConnectionScreen(viewModel: MainViewModel) {
     val buttonText = viewModel.buttonText
     val displayedText = viewModel.displayedText
     val imageShown = viewModel.image
+    val state = viewModel.connectionState
 
     Column(
         modifier = Modifier
@@ -61,14 +62,20 @@ fun ConnectionScreen(viewModel: MainViewModel) {
                 .align(Alignment.CenterHorizontally)
         ) {
             //We hide the image-result when it is not needed
-            if (imageShown != 0) {
-                Image(
-                    painter = painterResource(imageShown),
-                    contentDescription = "Result from sniffing",
-                    contentScale = ContentScale.FillWidth
-                )
-            } else {
-                CircularProgressIndicator(modifier = Modifier.fillMaxWidth())
+            when (state) {
+                StatesOfConnection.RESPONSE_RECEIVED -> {
+                    Image(
+                        painter = painterResource(imageShown),
+                        contentDescription = "Result from sniffing",
+                        contentScale = ContentScale.FillWidth
+                    )
+                }
+                StatesOfConnection.CLIENT_STARTED -> {
+                    CircularProgressIndicator(modifier = Modifier.fillMaxWidth())
+                }
+                else -> {
+                    //on error leave blank
+                }
             }
 
         }
