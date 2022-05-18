@@ -1,4 +1,4 @@
-package com.elementalist.enose
+package com.elementalist.enose.util
 
 import android.Manifest
 import android.os.Build

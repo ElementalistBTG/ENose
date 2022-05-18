@@ -2,7 +2,10 @@ package com.elementalist.enose.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple200 = Color(0xFFBB86FC)
-val Purple500 = Color(0xFF6200EE)
-val Purple700 = Color(0xFF3700B3)
-val Teal200 = Color(0xFF03DAC5)
+val Green = Color(0XFF66bb6a)
+val lightGreen = Color(0xFF98ee99)
+val darkGreen = Color(0xFF338a3e)
+
+val Lime = Color(0xFFd4e157)
+val lightLime = Color(0xFFffff89)
+val darkLime = Color(0xFFa0af22)

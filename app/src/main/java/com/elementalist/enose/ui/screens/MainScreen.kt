@@ -1,4 +1,4 @@
-package com.elementalist.enose
+package com.elementalist.enose.ui.screens
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -12,18 +12,23 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Button
-import androidx.compose.material.Divider
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.elementalist.enose.Client.ListedDeviceItem
+import com.elementalist.enose.ui.model.ListedDeviceItem
+import com.elementalist.enose.util.MY_TAG
+import com.elementalist.enose.util.askPermissions
+import com.elementalist.enose.util.askSinglePermission
+import com.elementalist.enose.util.requiredPermissionsInitialClient
 
 @SuppressLint("MissingPermission")
 @Composable
@@ -105,6 +110,7 @@ fun MainScreen(
 
     val discoveredDevices = viewModel.discoveredDevices
     val selectedDevice = viewModel.selectedDevice
+    val scanningActive = viewModel.scanningForDevices
 
     Column(
         modifier = Modifier
@@ -113,8 +119,16 @@ fun MainScreen(
     ) {
 
         Text(
-            text = "Electronic nose app for showing the result of a measurement from an external device (raspberry pi)." +
-                    "\nPress scan to connect to an external device and start"
+            text = "Electronic nose app for showing the result of a measurement from an external device (raspberry pi).",
+            fontStyle = FontStyle.Italic,
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(Modifier.padding(3.dp))
+
+        Text(
+            text = "Press scan to connect to an external device and start",
+            textAlign = TextAlign.Center
         )
 
         Spacer(
@@ -123,49 +137,66 @@ fun MainScreen(
                 .background(Color.DarkGray)
         )
 
-        Button(onClick = {
-            //check for permissions and launch scanning after they are granted
-            askPermissions(
-                multiplePermissionLauncher,
-                requiredPermissionsInitialClient,
-                context
-            ) { viewModel.scanForDevices() }
-        }) {
+        Button(
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            onClick = {
+                //check for permissions and launch scanning after they are granted
+                askPermissions(
+                    multiplePermissionLauncher,
+                    requiredPermissionsInitialClient,
+                    context
+                ) { viewModel.scanForDevices() }
+            }) {
             Text(text = "Scan for devices")
         }
 
         Spacer(modifier = Modifier.padding(5.dp))
 
-        if (discoveredDevices.isNotEmpty()) {
-            Text(
-                text = "Discovered Devices",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(2.dp)
-                    .border(3.dp, MaterialTheme.colors.primaryVariant),
-                textAlign = TextAlign.Center
-            )
+        if (scanningActive.value) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
         }
 
-        Spacer(modifier = Modifier.padding(3.dp))
+        Spacer(modifier = Modifier.padding(5.dp))
 
-        LazyColumn(modifier = Modifier.fillMaxWidth()) {
-            items(discoveredDevices) { device ->
-                ListedDeviceItem(
-                    deviceName = device.name,
-                    selected = viewModel.selectedDevice == device
-                ) {
-                    viewModel.selectDevice(device)
+        if (discoveredDevices.isNotEmpty()) {
+
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .border(3.dp, MaterialTheme.colors.primaryVariant)
+            ) {
+                Text(
+                    text = "Discovered Devices",
+                    style = TextStyle(textDecoration = TextDecoration.Underline),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(2.dp),
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.padding(3.dp))
+
+                LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                    items(discoveredDevices) { device ->
+                        ListedDeviceItem(
+                            deviceName = device.name,
+                            selected = viewModel.selectedDevice == device
+                        ) {
+                            viewModel.selectDevice(device)
+                        }
+                        Divider(Modifier.padding(3.dp), color = Color.Green)
+                    }
                 }
-                Divider(Modifier.padding(3.dp), color = Color.Green)
             }
         }
 
         if (selectedDevice != null) {
-            Button(onClick = {
-                viewModel.listenForData()
-                navController.navigate("server_screen")
-            }) {
+            Button(
+                modifier = Modifier.padding(top = 20.dp),
+                onClick = {
+                    viewModel.startServer()
+                    navController.navigate("connection_screen")
+                }) {
                 Text(text = "Listen for data sent from: ${selectedDevice.name}")
             }
         }

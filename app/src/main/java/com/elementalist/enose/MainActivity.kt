@@ -20,7 +20,12 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
+import com.elementalist.enose.ui.NavigationGraph
+import com.elementalist.enose.ui.screens.MainViewModel
 import com.elementalist.enose.ui.theme.ENoseTheme
+import com.elementalist.enose.util.MY_TAG
+import com.elementalist.enose.util.enableLocation
+import com.elementalist.enose.util.isLocationEnabled
 
 
 class MainActivity : ComponentActivity() {
@@ -39,6 +44,11 @@ class MainActivity : ComponentActivity() {
         //This specific action is required since my personal mobile needs GPS enabled to discover devices
         //(not written in any official documentation but needed nonetheless)
         if (!isLocationEnabled(this) && Build.VERSION.SDK_INT <= 30) {
+            Toast.makeText(
+                this,
+                "Location should be enabled since Location services are needed on some devices for correctly locating other Bluetooth devices",
+                Toast.LENGTH_SHORT
+            ).show()
             enableLocation(this)
         }
 
@@ -99,6 +109,7 @@ class MainActivity : ComponentActivity() {
                 }
                 BluetoothAdapter.ACTION_DISCOVERY_FINISHED -> {
                     Log.i(MY_TAG, "ACTION_DISCOVERY_FINISHED")
+                    viewModel.scanningFinished()
                     //if there are no device show proper message
                     if (viewModel.discoveredDevices.isEmpty()) {
                         Toast.makeText(

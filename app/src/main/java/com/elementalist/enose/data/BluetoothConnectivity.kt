@@ -1,9 +1,13 @@
-package com.elementalist.enose
+package com.elementalist.enose.data
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
 import android.util.Log
+import com.elementalist.enose.util.MY_TAG
+import com.elementalist.enose.util.myUuid
+import com.elementalist.enose.ui.screens.MainViewModel
+import com.elementalist.enose.ui.screens.StatesOfServer
 import java.io.IOException
 
 /**
@@ -62,12 +66,15 @@ class ConnectThread(
                 Log.i(MY_TAG, "attempting connection")
                 socket.connect()
                 Log.i(MY_TAG, "connection success")
+                viewModel.setServerSocket(socket)
             } catch (e: Exception) {
                 Log.i(MY_TAG, "connection was not successful")
+                viewModel.changeStateOfServer(StatesOfServer.ERROR,"Error on connectivity: $e")
             }
             //The connection attempt succeeded.
             //Perform work associated with the connection in a separate thread
-            BluetoothServer(socket, viewModel).start()
+            viewModel.listenForData()
+
         }
     }
 }

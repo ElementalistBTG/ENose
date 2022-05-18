@@ -1,7 +1,5 @@
-package com.elementalist.enose
+package com.elementalist.enose.ui.screens
 
-import android.bluetooth.BluetoothManager
-import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -13,16 +11,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat.getSystemService
-import org.intellij.lang.annotations.JdkConstants
+import com.elementalist.enose.ui.screens.MainViewModel
 
 @Composable
-fun ServerScreen(viewModel: MainViewModel) {
+fun ConnectionScreen(viewModel: MainViewModel) {
     //we observe some viewModel's variables to dynamically change the screen
     val buttonAction = viewModel.buttonAction
     val buttonText = viewModel.buttonText
@@ -46,7 +41,7 @@ fun ServerScreen(viewModel: MainViewModel) {
         ) {
             Text(text = displayedText, textAlign = TextAlign.Center)
         }
-        //Button for re-listening for data
+        //Button for re-listening for data after a result
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -81,14 +76,4 @@ fun ServerScreen(viewModel: MainViewModel) {
 
     }
 
-}
-
-@Preview
-@Composable
-fun ServerScreenPreview() {
-    val context = LocalContext.current
-    val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-    val bluetoothAdapter = bluetoothManager.adapter
-    val viewModel = MainViewModel(bluetoothAdapter)
-    ServerScreen(viewModel = viewModel)
 }

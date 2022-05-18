@@ -1,4 +1,4 @@
-package com.elementalist.enose
+package com.elementalist.enose.ui.screens
 
 enum class StatesOfServer {
     SERVER_STARTED,

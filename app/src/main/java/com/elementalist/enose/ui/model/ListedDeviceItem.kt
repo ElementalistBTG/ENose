@@ -1,4 +1,4 @@
-package com.elementalist.enose.Client
+package com.elementalist.enose.ui.model
 
 
 import androidx.compose.foundation.background

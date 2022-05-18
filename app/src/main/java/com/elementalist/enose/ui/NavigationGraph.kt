@@ -1,10 +1,12 @@
-package com.elementalist.enose
+package com.elementalist.enose.ui
 
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.elementalist.enose.ui.screens.ConnectionScreen
+import com.elementalist.enose.ui.screens.MainScreen
+import com.elementalist.enose.ui.screens.MainViewModel
 
 @Composable
 fun NavigationGraph(
@@ -18,8 +20,8 @@ fun NavigationGraph(
         composable("main_screen") {
             MainScreen(navController = navController, viewModel = viewModel)
         }
-        composable("server_screen") {
-            ServerScreen(viewModel = viewModel)
+        composable("connection_screen") {
+            ConnectionScreen(viewModel = viewModel)
         }
     }
 }
