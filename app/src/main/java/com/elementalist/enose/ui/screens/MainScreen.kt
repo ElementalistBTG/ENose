@@ -194,7 +194,7 @@ fun MainScreen(
             Button(
                 modifier = Modifier.padding(top = 20.dp),
                 onClick = {
-                    viewModel.startServer()
+                    viewModel.startBluetoothService()
                     navController.navigate("connection_screen")
                 }) {
                 Text(text = "Listen for data sent from: ${selectedDevice.name}")

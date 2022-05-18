@@ -11,12 +11,12 @@ import com.elementalist.enose.ui.screens.StatesOfServer
 import java.io.IOException
 
 /**
- * Thread for receiving data once from socket
+ * Thread for receiving data once from passed socket
  *
  * @property socket
  * @property viewModel
  */
-class BluetoothServer(
+class BluetoothService(
     private val socket: BluetoothSocket,
     private val viewModel: MainViewModel
 ) : Thread() {
@@ -32,22 +32,32 @@ class BluetoothServer(
                 val text = String(buffer)
                 Log.i(MY_TAG, "Message received: $text")
                 // Send the obtained bytes to the UI activity.
-                viewModel.changeStateOfServer(
+                viewModel.changeStateOfConnectivity(
                     newState = StatesOfServer.RESPONSE_RECEIVED,
                     dataReceived = text
                 )
             } catch (e: IOException) {
                 Log.i(MY_TAG, "Input stream was disconnected", e)
                 break
-            } finally {
+            }
+            finally {
                 inputStream.close()
-                //socket.close()
+                socket.close()
             }
 
         }
     }
 }
 
+/**
+ * A Thread to create a connection as a Client to an existing Server (the device we pass)
+ *
+ * @property viewModel
+ * @constructor
+ *
+ *
+ * @param device
+ */
 @SuppressLint("MissingPermission")
 class ConnectThread(
     device: BluetoothDevice,
@@ -65,14 +75,13 @@ class ConnectThread(
                 Log.i(MY_TAG, "attempting connection")
                 socket.connect()
                 Log.i(MY_TAG, "connection success")
-                viewModel.setServerSocket(socket)
             } catch (e: Exception) {
                 Log.i(MY_TAG, "connection was not successful")
-                viewModel.changeStateOfServer(StatesOfServer.ERROR,"Error on connectivity: $e")
+                viewModel.changeStateOfConnectivity(StatesOfServer.ERROR,"Error on connectivity: $e")
             }
             //The connection attempt succeeded.
             //Perform work associated with the connection in a separate thread
-            viewModel.listenForData()
+            BluetoothService(socket, viewModel).start()
         }
     }
 

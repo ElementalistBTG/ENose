@@ -13,14 +13,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.withStyle
 import androidx.lifecycle.ViewModel
 import com.elementalist.enose.data.ConnectThread
 import com.elementalist.enose.util.MY_TAG
 import com.elementalist.enose.R.drawable.nok
 import com.elementalist.enose.R.drawable.ok
-import com.elementalist.enose.data.BluetoothServer
+import com.elementalist.enose.data.BluetoothService
 
 class MainViewModel(
     private val bluetoothAdapter: BluetoothAdapter
@@ -60,37 +59,18 @@ class MainViewModel(
         selectedDevice = device
     }
 
-    lateinit var serverSocket: BluetoothSocket
-        private set
-
-    fun setServerSocket(socket: BluetoothSocket){
-        serverSocket = socket
-    }
-
     /**
      * Connect to the selected device and start a server socket connection
-     *
+     * and then listen to data from connected socket
      */
     @SuppressLint("MissingPermission")
-    fun startServer(){
-        changeStateOfServer(StatesOfServer.SERVER_STARTED)
+    fun startBluetoothService(){
+        changeStateOfConnectivity(StatesOfServer.CLIENT_STARTED)
         // Cancel discovery because it otherwise slows down the connection.
         bluetoothAdapter.cancelDiscovery()
         //Listen for data from selected device
         selectedDevice?.let {
             ConnectThread(it, this).start()
-        }
-    }
-
-    /**
-     * Listen to data from connected socket
-     *
-     */
-    fun listenForData() {
-        changeStateOfServer(StatesOfServer.SERVER_STARTED)
-        val server = BluetoothServer(serverSocket, this)
-        if(!server.isAlive){
-            server.start()
         }
     }
 
@@ -106,12 +86,12 @@ class MainViewModel(
         private set
 
     @SuppressLint("MissingPermission")
-    fun changeStateOfServer(
+    fun changeStateOfConnectivity(
         newState: StatesOfServer,
         dataReceived: String? = null
     ) {
         when (newState) {
-            StatesOfServer.SERVER_STARTED -> {
+            StatesOfServer.CLIENT_STARTED -> {
                 val annotatedText = buildAnnotatedString {
                     append("Listening for data from the device:\n")
                     withStyle(style = SpanStyle(color = Color.Blue)) {
@@ -133,7 +113,7 @@ class MainViewModel(
                         }
                         displayedText = annotatedText
                         buttonText = "Listen again for messages from raspberry?"
-                        buttonAction = { listenForData() }
+                        buttonAction = { startBluetoothService() }
                         image = ok
                     }
                     dataReceived.equals("0") -> {
@@ -146,7 +126,7 @@ class MainViewModel(
                         }
                         displayedText = annotatedText
                         buttonText = "Listen again for messages from raspberry?"
-                        buttonAction = { listenForData() }
+                        buttonAction = { startBluetoothService() }
                         image = nok
                     }
                     else -> {

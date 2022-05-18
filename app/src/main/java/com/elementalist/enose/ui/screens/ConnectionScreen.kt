@@ -14,7 +14,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.elementalist.enose.ui.screens.MainViewModel
 
 @Composable
 fun ConnectionScreen(viewModel: MainViewModel) {
@@ -68,7 +67,7 @@ fun ConnectionScreen(viewModel: MainViewModel) {
                     contentDescription = "Result from sniffing",
                     contentScale = ContentScale.FillWidth
                 )
-            }else{
+            } else {
                 CircularProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
 
